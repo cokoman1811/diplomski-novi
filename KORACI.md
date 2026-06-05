@@ -1,0 +1,49 @@
+# Log koraka — novi diplomski
+
+## Korak 0 — Priprema
+
+**Datum:** 2026-06-03  
+
+**Što je napravljeno:**
+- Kreirana mapa `novi diplomski` na Desktopu
+- Dogovor: radimo ispočetka, korak po korak, prema tvojim uputama
+
+**Sljedeće:** čeka se Korak 1 od tebe
+
+---
+
+## Korak 1 — Pisanje u novoj mapi
+
+**Datum:** 2026-06-03  
+
+**Što je napravljeno:**
+- Kreirana glavna datoteka za pisanje: `rad.md` (skeleton poglavlja)
+- Radna mapa: `Desktop\novi diplomski`
+
+**Sljedeće:** otvori mapu u Cursoru i počni pisati u `rad.md` (ili reci što prvo popuniti)
+
+---
+
+## Korak 2 — Git + auto-upload
+
+**Datum:** 2026-06-05  
+
+**Što je napravljeno:**
+- Git repozitorij inicijaliziran (`main` branch)
+- Cursor agent `@git-sync` — upload na GitHub
+- Skripta `scripts/git-sync.ps1` — commit + push
+- Hook na kraju agent sesije — automatski sync
+
+**Sljedeće:** kreirati GitHub repo i povezati remote (vidi upute ispod)
+
+### Kako povezati GitHub (jednom)
+
+**A)** Instaliraj GitHub CLI: `winget install GitHub.cli`, zatim `gh auth login`, pa:
+```powershell
+.\scripts\git-sync.ps1 -SetupRemote
+```
+
+**B)** Ručno na https://github.com/new (ime: `novi-diplomski`), pa:
+```powershell
+.\scripts\git-sync.ps1 -RemoteUrl "https://github.com/TVOJ_USERNAME/novi-diplomski.git"
+```
