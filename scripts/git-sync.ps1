@@ -14,6 +14,20 @@ function Write-Info([string]$Message) {
     if (-not $Quiet) { Write-Host $Message }
 }
 
+function Invoke-Git {
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs)
+
+    $previousPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    & git @GitArgs 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+    $ErrorActionPreference = $previousPreference
+
+    if ($exitCode -ne 0) {
+        throw "git $($GitArgs -join ' ') nije uspio (exit $exitCode)."
+    }
+}
+
 function Get-RemoteUrl {
     try {
         return (git remote get-url origin 2>$null)
@@ -40,7 +54,7 @@ if ($SetupRemote -or (-not (Get-RemoteUrl) -and $RemoteUrl)) {
         Write-Info "Remote postavljen: $RemoteUrl"
     } elseif (Get-Command gh -ErrorAction SilentlyContinue) {
         Write-Info "Kreiram GitHub repo preko gh CLI..."
-        gh repo create novi-diplomski --private --source=. --remote=origin --description "Diplomski rad - radna verzija"
+        gh repo create diplomski-novi --private --source=. --remote=origin --description "Diplomski rad - radna verzija"
         if ($LASTEXITCODE -ne 0) { throw "gh repo create nije uspio." }
     } else {
         throw @"
@@ -49,9 +63,9 @@ Nema postavljenog remote-a. Odaberi jedno:
 1. Instaliraj GitHub CLI: winget install GitHub.cli
    Zatim pokreni: .\scripts\git-sync.ps1 -SetupRemote
 
-2. Ručno kreiraj repo na https://github.com/new (ime: novi-diplomski)
+2. Ručno kreiraj repo na https://github.com/new (ime: diplomski-novi)
    Zatim pokreni:
-   .\scripts\git-sync.ps1 -RemoteUrl "https://github.com/TVOJ_USERNAME/novi-diplomski.git"
+   .\scripts\git-sync.ps1 -RemoteUrl "https://github.com/TVOJ_USERNAME/diplomski-novi.git"
 "@
     }
 }
@@ -64,8 +78,8 @@ if (-not $status) {
     Write-Info "Nema promjena za commit."
     $remote = Get-RemoteUrl
     if ($remote) {
-        git push -u origin main 2>$null
-        if ($LASTEXITCODE -eq 0) { Write-Info "Push OK (bez novih commita)." }
+        Invoke-Git push -u origin main
+        Write-Info "Push OK (bez novih commita)."
     }
     exit 0
 }
@@ -86,7 +100,6 @@ if (-not $remote) {
     exit 0
 }
 
-git push -u origin main
-if ($LASTEXITCODE -ne 0) { throw "Push nije uspio. Provjeri autentikaciju (git credential / gh auth login)." }
+Invoke-Git push -u origin main
 
 Write-Info "Upload na GitHub uspješan: $remote"
