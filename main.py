@@ -12,7 +12,7 @@ def _relaunch_with_venv_if_needed() -> None:
     """Use the project virtual environment when system Python is active."""
     if not VENV_PYTHON.exists():
         return
-
+        
     if Path(sys.executable).resolve() == VENV_PYTHON.resolve():
         return
 
