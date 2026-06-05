@@ -13,3 +13,14 @@ desktop.ini
 # Editor
 *.swp
 *~
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Data (zadrži strukturu, ne velike datoteke)
+data/*
+!data/.gitkeep

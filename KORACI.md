@@ -47,3 +47,18 @@
 ```powershell
 .\scripts\git-sync.ps1 -RemoteUrl "https://github.com/TVOJ_USERNAME/novi-diplomski.git"
 ```
+
+---
+
+## Korak 3 — Struktura projekta
+
+**Datum:** 2026-06-05  
+
+**Što je napravljeno:**
+- Kreirana mapa `src/` s ulaznom točkom (`src/main.py`)
+- Kreirana mapa `data/` za datasete
+- Kreirana mapa `docs/` za projektnu dokumentaciju
+- Dodani `main.py`, `app.py`, `requirements.txt`
+- Ažurirani `README.md` i `.gitignore`
+
+**Sljedeće:** postaviti virtualno okruženje i početi implementaciju modula u `src/`

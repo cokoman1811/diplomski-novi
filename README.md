@@ -23,19 +23,26 @@ Metrike evaluacije: MAE, RMSE, MAPE i grafička usporedba.
 
 ## Struktura
 
-| Datoteka / mapa | Svrha |
-|-----------------|--------|
-| `rad.md` | Glavni dokument rada (poglavlja, sadržaj) |
-| `KORACI.md` | Log napretka — što je gotovo po koracima |
-| `scripts/git-sync.ps1` | Commit + push na GitHub |
-| `.cursor/agents/git-sync.md` | Agent `@git-sync` za backup |
+```
+novi diplomski/
+├── src/              # Izvorni kod (metode, eksperimenti)
+├── data/             # Dataseti i ulazni podaci
+├── docs/             # Projektna dokumentacija
+├── main.py           # Ulazna točka za eksperimente
+├── app.py            # Web UI za vizualizaciju (kasnije)
+├── requirements.txt  # Python ovisnosti
+├── rad.md            # Tekst diplomskog rada
+├── KORACI.md         # Log napretka
+└── scripts/          # Git sync skripte
+```
 
 ## Status
 
 - [x] Korak 0 — mapa projekta kreirana
 - [x] Korak 1 — skeleton rada u `rad.md`
 - [x] Korak 2 — Git repozitorij + auto-upload (`@git-sync`)
-- [ ] Korak 3 — čeka sljedeću uputu
+- [x] Korak 3 — struktura projekta (`src/`, `data/`, `docs/`, `main.py`, `app.py`)
+- [ ] Korak 4 — čeka sljedeću uputu
 
 Detalji u [KORACI.md](KORACI.md).
 
