@@ -4,11 +4,20 @@ from pathlib import Path
 
 import pandas as pd
 
-REQUIRED_COLUMNS = {"timestamp", "city", "temperature"}
+from src.config import (
+    DATETIME_COLUMN,
+    JENA_INTERVAL_MINUTES,
+    JENA_RAW_FILENAME,
+    QUICK_SAMPLE_HOURS,
+    TEMPERATURE_COLUMN,
+)
+from src.paths import RAW_DIR
+
+REQUIRED_DEMO_COLUMNS = {"timestamp", "city", "temperature"}
 
 
 def list_available_cities(csv_path: str | Path) -> list[str]:
-    """Return sorted city names found in a temperature CSV file."""
+    """Return sorted city names found in a demo temperature CSV file."""
     csv_path = Path(csv_path)
 
     if not csv_path.exists():
@@ -20,9 +29,9 @@ def list_available_cities(csv_path: str | Path) -> list[str]:
 
 def load_temperature_series(csv_path: str | Path, city: str | None = None) -> pd.Series:
     """
-    Load temperature data from a CSV file and return it as a time-indexed Series.
+    Load temperature data from a demo CSV (timestamp, city, temperature).
 
-    Expected columns: timestamp, city, temperature.
+    Used for the small multi-city demo file in data/raw/.
     """
     csv_path = Path(csv_path)
 
@@ -34,7 +43,7 @@ def load_temperature_series(csv_path: str | Path, city: str | None = None) -> pd
     if data.empty:
         raise ValueError(f"CSV datoteka je prazna: {csv_path}")
 
-    missing_columns = REQUIRED_COLUMNS - set(data.columns)
+    missing_columns = REQUIRED_DEMO_COLUMNS - set(data.columns)
     if missing_columns:
         raise ValueError(f"Nedostaju stupci u CSV datoteci: {missing_columns}")
 
@@ -63,3 +72,41 @@ def load_temperature_series(csv_path: str | Path, city: str | None = None) -> pd
         series = series[~series.index.duplicated(keep="last")]
 
     return series.sort_index()
+
+
+def load_jena_raw(raw_dir: Path | None = None) -> pd.DataFrame:
+    """Load the full Jena Climate CSV with datetime index."""
+    raw_dir = raw_dir or RAW_DIR
+    csv_path = raw_dir / JENA_RAW_FILENAME
+
+    if not csv_path.exists():
+        raise FileNotFoundError(
+            f"Jena Climate datoteka ne postoji: {csv_path}. "
+            "Pokreni: python main.py --download"
+        )
+
+    df = pd.read_csv(csv_path)
+    df.index = pd.to_datetime(df[DATETIME_COLUMN], dayfirst=True)
+    df = df.drop(columns=[DATETIME_COLUMN])
+    return df.sort_index()
+
+
+def load_jena_temperature(raw_dir: Path | None = None) -> pd.Series:
+    """
+    Load temperature from the Jena weather station (2009–2016, 10-minute resolution).
+    """
+    df = load_jena_raw(raw_dir)
+    temperature = pd.to_numeric(df[TEMPERATURE_COLUMN], errors="coerce")
+    temperature.name = "temperature"
+    temperature.index.name = "timestamp"
+    return temperature.sort_index()
+
+
+def load_jena_temperature_slice(
+    hours: int = QUICK_SAMPLE_HOURS,
+    raw_dir: Path | None = None,
+) -> pd.Series:
+    """Load the first N hours of Jena temperature data (for quick tests)."""
+    series = load_jena_temperature(raw_dir)
+    samples = int(hours * 60 / JENA_INTERVAL_MINUTES)
+    return series.iloc[:samples]

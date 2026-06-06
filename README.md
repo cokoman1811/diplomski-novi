@@ -51,10 +51,14 @@ Detalji u [KORACI.md](KORACI.md).
 Prvi put (ili nakon klona repozitorija) samo pokreni:
 
 ```powershell
-python main.py --quick
+python main.py --download    # preuzmi Jena Climate (jednom)
+python main.py --quick       # učitaj prvih 48 h Jena temperature
+python main.py --demo        # mali demo s gradovima Split/Zagreb
 ```
 
 `main.py` automatski kreira `.venv`, instalira pakete iz `requirements.txt` i pokreće projekt.
+
+**Dataset:** [Jena Climate](https://www.bgc-jena.mpg.de/wetter/) (2009–2016, mjerenja svakih 10 min) — sprema se u `data/raw/jena_climate_2009_2016.csv`.
 
 ## Kako radimo
 
