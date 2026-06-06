@@ -5,18 +5,47 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-VENV_PYTHON = PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"
+VENV_DIR = PROJECT_ROOT / ".venv"
+REQUIREMENTS = PROJECT_ROOT / "requirements.txt"
 
 
-def _relaunch_with_venv_if_needed() -> None:
+def _venv_python() -> Path:
+    if sys.platform == "win32":
+        return VENV_DIR / "Scripts" / "python.exe"
+    return VENV_DIR / "bin" / "python"
+
+
+def _run(command: list[str]) -> None:
+    subprocess.check_call(command, cwd=PROJECT_ROOT)
+
+
+def _install_requirements(python: Path) -> None:
+    if not REQUIREMENTS.exists():
+        return
+
+    print("Instaliram pakete iz requirements.txt...")
+    _run([str(python), "-m", "pip", "install", "-q", "--upgrade", "pip"])
+    _run([str(python), "-m", "pip", "install", "-q", "-r", str(REQUIREMENTS)])
+
+
+def _ensure_venv() -> Path:
+    """Create .venv on first run."""
+    python = _venv_python()
+
+    if not python.exists():
+        print("Kreiram virtualno okruženje (.venv)...")
+        _run([sys.executable, "-m", "venv", str(VENV_DIR)])
+        _install_requirements(python)
+
+    return python
+
+
+def _relaunch_with_venv_if_needed(python: Path) -> None:
     """Use the project virtual environment when system Python is active."""
-    if not VENV_PYTHON.exists():
-        return
-        
-    if Path(sys.executable).resolve() == VENV_PYTHON.resolve():
+    if Path(sys.executable).resolve() == python.resolve():
         return
 
-    command = [str(VENV_PYTHON), str(Path(__file__).resolve()), *sys.argv[1:]]
+    command = [str(python), str(Path(__file__).resolve()), *sys.argv[1:]]
     raise SystemExit(subprocess.call(command))
 
 
@@ -25,18 +54,13 @@ if __name__ == "__main__":
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
 
-    _relaunch_with_venv_if_needed()
+    venv_python = _ensure_venv()
+    _relaunch_with_venv_if_needed(venv_python)
 
     try:
         from src.main import main
-    except ModuleNotFoundError as error:
-        print("Nedostaju Python paketi za ovaj projekt.")
-        print(f"Greška: {error}")
-        if VENV_PYTHON.exists():
-            print(f"Koristi projektni environment: {VENV_PYTHON} main.py")
-        else:
-            print("Prvo kreiraj environment: python -m venv .venv")
-            print("Zatim instaliraj pakete: .venv\\Scripts\\pip install -r requirements.txt")
-        raise SystemExit(1) from error
+    except ModuleNotFoundError:
+        _install_requirements(venv_python)
+        from src.main import main
 
     main()

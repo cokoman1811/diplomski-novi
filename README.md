@@ -46,6 +46,16 @@ novi diplomski/
 
 Detalji u [KORACI.md](KORACI.md).
 
+## Pokretanje
+
+Prvi put (ili nakon klona repozitorija) samo pokreni:
+
+```powershell
+python main.py --quick
+```
+
+`main.py` automatski kreira `.venv`, instalira pakete iz `requirements.txt` i pokreće projekt.
+
 ## Kako radimo
 
 1. Ti kažeš što želiš u sljedećem koraku.
