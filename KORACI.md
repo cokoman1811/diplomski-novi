@@ -62,3 +62,19 @@
 - Ažurirani `README.md` i `.gitignore`
 
 **Sljedeće:** postaviti virtualno okruženje i početi implementaciju modula u `src/`
+
+---
+
+## Korak 4 — Učitavanje podataka (Dan 1)
+
+**Datum:** 2026-06-06  
+
+**Što je napravljeno:**
+- Moduli `config.py`, `paths.py`, `download_data.py`, `data_loader.py`
+- CLI u `src/main.py` (`--download`, `--quick`, `--demo`)
+- Automatsko `.venv` u korijenskom `main.py`
+- Uspješno testirano: `python main.py --quick` → `jena_temperature_48h.csv` (288 zapisa)
+
+**Detalji:** vidi [docs/dan1.md](docs/dan1.md)
+
+**Sljedeće:** simulacija nedostajućih vrijednosti i prva metoda imputacije
