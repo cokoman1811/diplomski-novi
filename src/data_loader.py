@@ -7,6 +7,17 @@ import pandas as pd
 REQUIRED_COLUMNS = {"timestamp", "city", "temperature"}
 
 
+def list_available_cities(csv_path: str | Path) -> list[str]:
+    """Return sorted city names found in a temperature CSV file."""
+    csv_path = Path(csv_path)
+
+    if not csv_path.exists():
+        raise FileNotFoundError(f"CSV datoteka ne postoji: {csv_path}")
+
+    data = pd.read_csv(csv_path, usecols=["city"])
+    return sorted(data["city"].dropna().unique().tolist())
+
+
 def load_temperature_series(csv_path: str | Path, city: str | None = None) -> pd.Series:
     """
     Load temperature data from a CSV file and return it as a time-indexed Series.
