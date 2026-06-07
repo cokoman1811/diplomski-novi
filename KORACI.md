@@ -78,3 +78,18 @@
 **Detalji:** vidi [docs/dan1.md](docs/dan1.md)
 
 **Sljedeće:** simulacija nedostajućih vrijednosti i prva metoda imputacije
+
+---
+
+## Korak 5 — Degradacija, interpolacija, evaluacija (Dan 2)
+
+**Datum:** 2026-06-07  
+
+**Što je napravljeno:**
+- `preprocessing.py`, `interpolation_methods.py`, `evaluation.py`
+- Ručni testovi i usporedba 3 klasične metode na Jena 48h uzorku
+- Progress zapis u `docs/progress.md`
+
+**Detalji:** vidi [docs/progress.md](docs/progress.md)
+
+**Sljedeće:** spline / ML metode, integracija u `main.py`, grafovi

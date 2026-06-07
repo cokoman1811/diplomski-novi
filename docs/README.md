@@ -6,4 +6,6 @@ Tehnička dokumentacija i bilješke o eksperimentima.
 |----------|------|
 | `../rad.md` | Glavni tekst diplomskog rada |
 | `../KORACI.md` | Log napretka po koracima |
+| [progress.md](progress.md) | Dnevni progress log |
+| [dan1.md](dan1.md) | Dan 1 — učitavanje podataka |
 | `dan1.md` | Dan 1 — učitavanje Jena podataka i CLI |
