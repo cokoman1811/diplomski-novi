@@ -40,9 +40,13 @@ python tests/test_metrics.py
 python tests/test_compare_methods.py
 ```
 
-**Setup:** Jena Climate, prvih **48 h** (288 zapisa, interval 10 min), `missing_rate=0.4`, `random_state=42`
+Testiran je osnovni pipeline na Jena uzorku od **48 sati**, odnosno **288 mjerenja**.
 
-### Rezultati (usporedba metoda)
+Korišten je `missing_rate = 0.4`, što znači da je umjetno uklonjeno **115 vrijednosti**.
+
+Metrike su izračunate samo na umjetno obrisanim mjestima (`missing_mask == True`).
+
+### Rezultati
 
 | Metoda | MAE | RMSE | R² |
 |--------|-----|------|-----|
@@ -50,7 +54,11 @@ python tests/test_compare_methods.py
 | linear_interpolation | 0.0736 | 0.1066 | 0.9970 |
 | time_interpolation | 0.0736 | 0.1066 | 0.9970 |
 
-**Zaključak dana:** na ovom uzorku linearna i time interpolacija jednako nadmašuju forward fill; time i linear daju iste metrike jer je Jena niz ravnomjerno uzorkovan (10 min).
+### Zaključak
+
+Linear interpolation i time interpolation imaju bolje rezultate od forward fill metode.
+
+Budući da su podaci pravilno vremenski uzorkovani, linearna i vremenska interpolacija daju iste rezultate.
 
 ### Novi moduli u `src/`
 
