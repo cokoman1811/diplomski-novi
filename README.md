@@ -42,10 +42,11 @@ novi diplomski/
 - [x] Korak 1 — skeleton rada u `rad.md`
 - [x] Korak 2 — Git repozitorij + auto-upload (`@git-sync`)
 - [x] Korak 3 — struktura projekta (`src/`, `data/`, `docs/`, `main.py`, `app.py`)
-- [x] Korak 4 — učitavanje Jena podataka + CLI (`docs/dan1.md`)
-- [ ] Korak 5 — simulacija rupa i prva metoda imputacije
+- [x] Korak 4 — učitavanje Jena podataka + CLI ([dan1.md](docs/dan1.md))
+- [x] Korak 5 — degradacija, interpolacija, evaluacija ([dan2.md](docs/dan2.md))
+- [ ] Dan 3 — spline, ML metode, grafovi
 
-Detalji u [KORACI.md](KORACI.md).
+Dnevni log: [docs/progress.md](docs/progress.md) · Koraci: [KORACI.md](KORACI.md)
 
 ## Pokretanje
 

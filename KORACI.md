@@ -90,6 +90,6 @@
 - Ručni testovi i usporedba 3 klasične metode na Jena 48h uzorku
 - Progress zapis u `docs/progress.md`
 
-**Detalji:** vidi [docs/progress.md](docs/progress.md)
+**Detalji:** vidi [docs/dan2.md](docs/dan2.md) i [docs/progress.md](docs/progress.md)
 
-**Sljedeće:** spline / ML metode, integracija u `main.py`, grafovi
+**Sljedeće:** Dan 3 — spline / ML metode, integracija u `main.py`, grafovi
