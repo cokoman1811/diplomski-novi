@@ -4,6 +4,16 @@ import bootstrap  # noqa: F401
 
 import pandas as pd
 
+from output_format import (
+    ROWS,
+    configure_display,
+    format_nan,
+    format_temperature,
+    print_legend,
+    print_section,
+    print_stat,
+    print_summary,
+)
 from src.data_loader import load_jena_temperature_slice
 from src.evaluation import evaluate_reconstruction
 from src.interpolation_methods import (
@@ -13,11 +23,7 @@ from src.interpolation_methods import (
 )
 from src.preprocessing import create_missing_values
 
-pd.set_option("display.width", 140)
-pd.set_option("display.max_columns", 12)
-pd.set_option("display.float_format", lambda x: f"{x:7.2f}")
-
-ROWS = 20
+configure_display(width=140)
 
 METHODS = {
     "forward_fill": forward_fill,
@@ -25,29 +31,18 @@ METHODS = {
     "time_interpolation": time_interpolation,
 }
 
-
-def print_section(title: str) -> None:
-    print()
-    print("=" * 70)
-    print(title)
-    print("=" * 70)
-
-
 # 1. Učitaj original i napravi oštećeni niz s maskom
 series = load_jena_temperature_slice(hours=48)
 series_before = series.copy()
 
 damaged, mask = create_missing_values(
     series,
-    missing_rate=0.2,
+    missing_rate=0.4,
     random_state=42,
 )
 damaged_before = damaged.copy()
 
-print_section("ULAZNI PODACI")
-print(f"Broj zapisa:                 {len(series)}")
-print(f"NaN u damaged:               {int(damaged.isna().sum())}")
-print(f"Umjetno obrisano (mask):     {int(mask.sum())}")
+print_summary(series, damaged, mask)
 
 # 2. Primijeni svaku metodu i provjeri osnovne uvjete
 reconstructed = {}
@@ -63,16 +58,16 @@ for name, method in METHODS.items():
         missing_mask=mask,
     )
 
-    print(f"\n--- {name} ---")
-    print(f"NaN nakon interpolacije:     {int(result.isna().sum())}")
-    print(f"Isti index kao original:     {result.index.equals(series.index)}")
-    print(f"Isto ime kao original:       {result.name == series.name}")
-    print(f"Original nije promijenjen:   {series.equals(series_before)}")
-    print(f"Damaged nije promijenjen:    {damaged.equals(damaged_before)}")
-    print("Metrike (samo obrisana mjesta):")
-    print(f"  MAE:  {metrics['mae']:.4f}")
-    print(f"  RMSE: {metrics['rmse']:.4f}")
-    print(f"  R2:   {metrics['r2']:.4f}")
+    print()
+    print(f"  --- {name} ---")
+    print_stat("NaN nakon interpolacije", int(result.isna().sum()))
+    print_stat("Isti index kao original", result.index.equals(series.index))
+    print_stat("Isto ime kao original", result.name == series.name)
+    print_stat("Original nije promijenjen", series.equals(series_before))
+    print_stat("Damaged nije promijenjen", damaged.equals(damaged_before))
+    print_stat("MAE (samo obrisana mjesta)", f"{metrics['mae']:.4f}")
+    print_stat("RMSE (samo obrisana mjesta)", f"{metrics['rmse']:.4f}")
+    print_stat("R2 (samo obrisana mjesta)", f"{metrics['r2']:.4f}")
 
 # 3. Usporedna tablica — samo obrisana mjesta, sve metode jedna pored druge
 comparison = pd.DataFrame(
@@ -90,20 +85,19 @@ removed = comparison[comparison["missing_mask"]]
 print_section(f"USPOREDBA METODA — prvih {ROWS} obrisanih vrijednosti")
 print(
     removed.head(ROWS).to_string(
-        na_rep="  NaN  ",
         formatters={
-            "original": "{:7.2f}".format,
-            "damaged": lambda _: "  NaN  ",
-            "forward_fill": "{:7.2f}".format,
-            "linear": "{:7.2f}".format,
-            "time": "{:7.2f}".format,
+            "original": format_temperature,
+            "damaged": format_nan,
+            "forward_fill": format_temperature,
+            "linear": format_temperature,
+            "time": format_temperature,
         },
     )
 )
 
-print()
-print("Legenda:")
-print("  damaged = NaN (rupe koje metode popunjavaju)")
-print("  forward_fill = zadnja poznata temperatura")
-print("  linear = ravna linija između susjeda")
-print("  time = interpolacija uz obzir vremena između mjerenja")
+print_legend(
+    "damaged      = NaN (rupe koje metode popunjavaju)",
+    "forward_fill = zadnja poznata temperatura",
+    "linear       = ravna linija između susjeda",
+    "time         = interpolacija uz obzir vremena između mjerenja",
+)
