@@ -1,9 +1,7 @@
 """Metrics for comparing reconstructed temperature values to the original series."""
 
 import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-
-
+sklearn
 def evaluate_reconstruction(
     original: pd.Series,
     reconstructed: pd.Series,
