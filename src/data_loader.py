@@ -11,7 +11,9 @@ from src.config import (
     QUICK_SAMPLE_HOURS,
     TEMPERATURE_COLUMN,
 )
-from src.paths import RAW_DIR
+from src.paths import PROCESSED_DIR, RAW_DIR
+
+JENA_QUICK_PROCESSED_CSV = PROCESSED_DIR / "jena_temperature_48h.csv"
 
 REQUIRED_DEMO_COLUMNS = {"timestamp", "city", "temperature"}
 
@@ -100,6 +102,45 @@ def load_jena_temperature(raw_dir: Path | None = None) -> pd.Series:
     temperature.name = "temperature"
     temperature.index.name = "timestamp"
     return temperature.sort_index()
+
+
+def load_processed_series(csv_path: str | Path | None = None) -> pd.Series:
+    """
+    Load a processed temperature CSV saved by the project (timestamp, temperature).
+
+    Defaults to the 48 h Jena quick-mode file in data/processed/.
+    """
+    csv_path = Path(csv_path) if csv_path is not None else JENA_QUICK_PROCESSED_CSV
+
+    if not csv_path.exists():
+        raise FileNotFoundError(
+            f"Obrađena CSV datoteka ne postoji: {csv_path}. "
+            "Pokreni: python main.py --quick"
+        )
+
+    data = pd.read_csv(csv_path, index_col="timestamp", parse_dates=True)
+
+    if data.empty:
+        raise ValueError(f"CSV datoteka je prazna: {csv_path}")
+
+    if "temperature" not in data.columns:
+        raise ValueError(f"Nedostaje stupac 'temperature' u CSV datoteci: {csv_path}")
+
+    temperature = pd.to_numeric(data["temperature"], errors="coerce")
+    if temperature.isna().any():
+        raise ValueError("Neki temperature zapisi nisu valjani brojevi.")
+
+    series = pd.Series(
+        data=temperature.values,
+        index=pd.DatetimeIndex(data.index),
+        name="temperature",
+    )
+    series.index.name = "timestamp"
+
+    if series.index.has_duplicates:
+        series = series[~series.index.duplicated(keep="last")]
+
+    return series.sort_index()
 
 
 def load_jena_temperature_slice(

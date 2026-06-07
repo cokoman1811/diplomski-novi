@@ -1,8 +1,14 @@
-from src.data_loader import load_jena_temperature_slice
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.data_loader import load_processed_series
 from src.preprocessing import create_missing_values
 
 
-series = load_jena_temperature_slice(hours=48)
+series = load_processed_series()
 
 damaged, mask = create_missing_values(
     series,
