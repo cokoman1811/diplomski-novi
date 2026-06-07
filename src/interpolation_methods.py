@@ -2,16 +2,13 @@
 
 import pandas as pd
 
-
 def _validate_series(series: pd.Series) -> None:
     if not isinstance(series, pd.Series):
         raise ValueError("series must be a pandas Series.")
 
-
 def _fill_remaining_gaps(result: pd.Series) -> pd.Series:
     """Forward- and back-fill any NaN values left after interpolation."""
     return result.ffill().bfill()
-
 
 def forward_fill(series: pd.Series) -> pd.Series:
     """
