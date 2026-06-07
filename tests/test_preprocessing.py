@@ -1,29 +1,95 @@
+"""Ručni test za create_missing_values — pokreni: python tests/test_preprocessing.py"""
+
 import bootstrap  # noqa: F401
 
-from src.data_loader import load_processed_series
+import pandas as pd
+
+from src.data_loader import load_jena_temperature_slice
 from src.preprocessing import create_missing_values
 
-series = load_processed_series()
+pd.set_option("display.width", 120)
+pd.set_option("display.max_columns", 10)
+pd.set_option("display.float_format", lambda x: f"{x:7.2f}")
 
+ROWS = 20
+
+
+def print_section(title: str) -> None:
+    print()
+    print("=" * 60)
+    print(title)
+    print("=" * 60)
+
+
+# 1. Učitaj originalni Jena niz (prvih 48 sati)
+series = load_jena_temperature_slice(hours=48)
+
+# 2. Umjetno ukloni 20% vrijednosti i zapamti masku
 damaged, mask = create_missing_values(
     series,
     missing_rate=0.2,
     random_state=42,
 )
 
-print("Original broj zapisa:", len(series))
-print("Oštećeni broj zapisa:", len(damaged))
-print("Broj umjetno obrisanih vrijednosti:", int(mask.sum()))
-print("Broj NaN vrijednosti u damaged:", int(damaged.isna().sum()))
+# 3. Sažetak brojeva
+unchanged_count = int((~mask).sum())
 
-print()
-print("Original - prvih 10:")
-print(series.head(10))
+print_section("SAŽETAK")
+print(f"Broj originalnih zapisa:              {len(series)}")
+print(f"Broj oštećenih zapisa:                {len(damaged)}")
+print(f"Broj umjetno obrisanih vrijednosti:   {int(mask.sum())}")
+print(f"Broj NaN vrijednosti u damaged:       {int(damaged.isna().sum())}")
+print(f"Broj vrijednosti koje nisu dirane:    {unchanged_count}")
 
-print()
-print("Damaged - prvih 10:")
-print(damaged.head(10))
+# 4. Zasebne tablice (prvih 20 redova)
+print_section(f"ORIGINAL — prvih {ROWS} redova")
+print(series.head(ROWS).to_frame(name="temperature"))
 
+print_section(f"DAMAGED — prvih {ROWS} redova")
+print(damaged.head(ROWS).to_frame(name="temperature"))
+
+print_section(f"MASK — prvih {ROWS} redova")
+print(mask.head(ROWS).to_frame(name="missing_mask"))
+
+# 5. Usporedna tablica: original | damaged | maska | razlika | status
+comparison = pd.DataFrame(
+    {
+        "original_temperature": series,
+        "damaged_temperature": damaged,
+        "missing_mask": mask,
+    }
+)
+comparison["razlika"] = comparison["original_temperature"] - comparison["damaged_temperature"]
+comparison["status"] = comparison["missing_mask"].map({True: "OBRISANO", False: "OK"})
+
+print_section(f"USPOREDBA (side by side) — prvih {ROWS} redova")
+print(
+    comparison.head(ROWS).to_string(
+        na_rep="  NaN  ",
+        formatters={
+            "original_temperature": "{:7.2f}".format,
+            "damaged_temperature": lambda x: f"{x:7.2f}" if pd.notna(x) else "  NaN  ",
+            "razlika": lambda x: f"{x:7.2f}" if pd.notna(x) else "  ---  ",
+        },
+    )
+)
+
+# 6. Samo obrisane vrijednosti — najjasniji prikaz razlike
+removed = comparison[comparison["missing_mask"]].copy()
+
+print_section(f"SAMO OBRISANE VRIJEDNOSTI — prvih {ROWS} redova (od {len(removed)} ukupno)")
+print(
+    removed.head(ROWS).to_string(
+        na_rep="  NaN  ",
+        formatters={
+            "original_temperature": "{:7.2f}".format,
+            "damaged_temperature": lambda _: "  NaN  ",
+            "razlika": lambda x: "  ---  ",
+        },
+    )
+)
 print()
-print("Mask - prvih 10:")
-print(mask.head(10))
+print("Legenda:")
+print("  OK        = vrijednost nije dirana (original == damaged)")
+print("  OBRISANO  = vrijednost zamijenjena s NaN")
+print("  razlika   = original - damaged (0.00 kad nije dirano, --- kad je obrisano)")

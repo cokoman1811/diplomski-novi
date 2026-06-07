@@ -1,6 +1,6 @@
-"""Ručni test za interpolacijske metode — pokreni iz korijena: python test_interpolation.py"""
+"""Ručni test za interpolacijske metode — pokreni: python tests/test_interpolation.py"""
 
-import sys
+import bootstrap  # noqa: F401
 
 import pandas as pd
 
@@ -12,9 +12,6 @@ from src.interpolation_methods import (
     time_interpolation,
 )
 from src.preprocessing import create_missing_values
-
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
 
 pd.set_option("display.width", 140)
 pd.set_option("display.max_columns", 12)
@@ -72,7 +69,7 @@ for name, method in METHODS.items():
     print(f"Isto ime kao original:       {result.name == series.name}")
     print(f"Original nije promijenjen:   {series.equals(series_before)}")
     print(f"Damaged nije promijenjen:    {damaged.equals(damaged_before)}")
-    print(f"Metrike (samo obrisana mjesta):")
+    print("Metrike (samo obrisana mjesta):")
     print(f"  MAE:  {metrics['mae']:.4f}")
     print(f"  RMSE: {metrics['rmse']:.4f}")
     print(f"  R2:   {metrics['r2']:.4f}")
