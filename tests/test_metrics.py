@@ -1,12 +1,10 @@
-import sys
-from pathlib import Path
+import bootstrap  # noqa: F401
 
-from src.data_loader import load_jena_temperature_slice
-from src.preprocessing import create_missing_values
+from src.data_loader import load_processed_series
 from src.evaluation import evaluate_reconstruction
+from src.preprocessing import create_missing_values
 
-
-series = load_jena_temperature_slice(hours=48)
+series = load_processed_series()
 
 damaged, mask = create_missing_values(
     series,
@@ -25,6 +23,5 @@ metrics = evaluate_reconstruction(
 print("Broj originalnih zapisa:", len(series))
 print("Broj obrisanih vrijednosti:", int(mask.sum()))
 print()
-
 print("Metrike:")
 print(metrics)
