@@ -1,6 +1,7 @@
 """Utilities for loading temperature time-series data."""
 
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 
@@ -14,8 +15,34 @@ from src.config import (
 from src.paths import PROCESSED_DIR, RAW_DIR
 
 JENA_QUICK_PROCESSED_CSV = PROCESSED_DIR / "jena_temperature_48h.csv"
+DEMO_CSV = RAW_DIR / "temperature_demo_cities.csv"
+DEFAULT_DEMO_CITY = "Split"
 
 REQUIRED_DEMO_COLUMNS = {"timestamp", "city", "temperature"}
+ExperimentSource = Literal["demo", "jena_quick", "jena_full", "processed"]
+
+
+def _validate_temperature_series(series: pd.Series) -> pd.Series:
+    """Check that a loaded temperature series is ready for experiments."""
+    if series.empty:
+        raise ValueError("Temperaturni niz je prazan.")
+
+    if not isinstance(series.index, pd.DatetimeIndex):
+        raise ValueError("Indeks mora biti DatetimeIndex.")
+
+    if not series.index.is_monotonic_increasing:
+        raise ValueError("Indeks mora biti sortiran.")
+
+    if series.index.has_duplicates:
+        raise ValueError("Indeks ne smije imati duplikate.")
+
+    if not pd.api.types.is_numeric_dtype(series):
+        raise ValueError("Temperatura mora biti numerička.")
+
+    if series.isna().any():
+        raise ValueError("Temperatura ne smije sadržavati nedostajuće vrijednosti.")
+
+    return series
 
 
 def list_available_cities(csv_path: str | Path) -> list[str]:
@@ -70,10 +97,7 @@ def load_temperature_series(csv_path: str | Path, city: str | None = None) -> pd
         name="temperature",
     )
 
-    if series.index.has_duplicates:
-        series = series[~series.index.duplicated(keep="last")]
-
-    return series.sort_index()
+    return _validate_temperature_series(series.sort_index())
 
 
 def load_jena_raw(raw_dir: Path | None = None) -> pd.DataFrame:
@@ -101,7 +125,10 @@ def load_jena_temperature(raw_dir: Path | None = None) -> pd.Series:
     temperature = pd.to_numeric(df[TEMPERATURE_COLUMN], errors="coerce")
     temperature.name = "temperature"
     temperature.index.name = "timestamp"
-    return temperature.sort_index()
+    temperature = temperature.sort_index()
+    if temperature.index.has_duplicates:
+        temperature = temperature[~temperature.index.duplicated(keep="last")]
+    return _validate_temperature_series(temperature)
 
 
 def load_processed_series(csv_path: str | Path | None = None) -> pd.Series:
@@ -137,10 +164,7 @@ def load_processed_series(csv_path: str | Path | None = None) -> pd.Series:
     )
     series.index.name = "timestamp"
 
-    if series.index.has_duplicates:
-        series = series[~series.index.duplicated(keep="last")]
-
-    return series.sort_index()
+    return _validate_temperature_series(series.sort_index())
 
 
 def load_jena_temperature_slice(
@@ -150,4 +174,21 @@ def load_jena_temperature_slice(
     """Load the first N hours of Jena temperature data (for quick tests)."""
     series = load_jena_temperature(raw_dir)
     samples = int(hours * 60 / JENA_INTERVAL_MINUTES)
-    return series.iloc[:samples]
+    return _validate_temperature_series(series.iloc[:samples])
+
+
+def load_experiment_series(
+    source: ExperimentSource = "jena_quick",
+    *,
+    city: str | None = None,
+) -> pd.Series:
+    """Load a temperature series for experiments from a named project source."""
+    if source == "demo":
+        return load_temperature_series(DEMO_CSV, city=city or DEFAULT_DEMO_CITY)
+    if source == "jena_quick":
+        return load_jena_temperature_slice()
+    if source == "jena_full":
+        return load_jena_temperature()
+    if source == "processed":
+        return load_processed_series()
+    raise ValueError(f"Nepoznat izvor podataka: {source}")

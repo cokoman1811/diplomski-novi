@@ -24,3 +24,5 @@ __pycache__/
 # Data (zadrži strukturu, ne velike datoteke)
 data/*
 !data/.gitkeep
+!data/raw/
+!data/raw/temperature_demo_cities.csv

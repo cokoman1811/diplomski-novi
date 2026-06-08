@@ -12,4 +12,6 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 
 Zadnji završeni dan: **Dan 2** — osnovni pipeline (degradacija → 3 klasične metode → MAE/RMSE/R²) radi na Jena uzorku od 48 h.
 
+**Danas:** `src/data_loader.py` — zajednički ulaz `load_experiment_series()`, validacija niza, demo CSV za `--demo`, testovi u `tests/test_data_loader.py`.
+
 Sljedeće: spline, ML metode, integracija u `main.py`, grafovi.
