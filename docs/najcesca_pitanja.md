@@ -1,5 +1,71 @@
 # Najčešća pitanja
 
+## Što je venv (`.venv`)?
+
+**venv** = **virtualno okruženje** — posebna „kutija“ Pythona samo za ovaj projekt.
+
+### Zašto postoji?
+
+Na računalu možeš imati više Python instalacija i puno paketa (`pandas`, `pytest`, `sklearn`…). Bez venv-a svi projekti dijele isti Python i lako dođe do konflikta:
+
+- jedan projekt traži `pandas 2.2`
+- drugi traži stariju verziju
+- `pytest` je instaliran u jednom env-u, a ti pokreneš drugi Python → `No module named pytest`
+
+Virtualno okruženje rješava to: **ovaj diplomski projekt ima svoje pakete u mapi `.venv`**, odvojeno od ostatka sustava.
+
+### Gdje je u projektu?
+
+```
+novi diplomski/
+├── .venv/              ← virtualno okruženje (Python + paketi)
+│   └── Scripts/
+│       └── python.exe  ← Python samo za ovaj projekt
+├── requirements.txt    ← popis paketa koje venv treba imati
+├── main.py             ← pri pokretanju sam koristi .venv
+└── run.bat             ← isto — aktivira .venv
+```
+
+Prvi put kad pokreneš `python main.py` ili `run.bat`, projekt **sam kreira** `.venv` i instalira pakete iz `requirements.txt`.
+
+### Dva Pythona — česta zamka
+
+| Naredba | Koji Python | Ima projektne pakete? |
+|---------|-------------|------------------------|
+| `python -m pytest` | često Windows Store Python | ❌ obično ne |
+| `.\.venv\Scripts\python.exe -m pytest` | projektni `.venv` | ✅ da |
+
+Zato testovi ponekad „ne rade“ iako Python jest instaliran — pokrenuo si **krivi** Python.
+
+### Kako pokrenuti stvari ispravno
+
+**Testovi (pytest):**
+```powershell
+.\.venv\Scripts\python.exe -m pytest -v
+```
+
+**Glavni program** (sam prebaci na venv):
+```powershell
+python main.py --compare
+```
+
+ili:
+```powershell
+.\run.bat --compare
+```
+
+**Ručna test skripta** (npr. `test_metrics.py`):
+```powershell
+.\.venv\Scripts\python.exe tests/test_metrics.py
+```
+
+### Kratka analogija
+
+- **Sistemski Python** = zajednička kuhinja u zgradi — svi je koriste, nered često
+- **`.venv`** = tvoja privatna kuhinja samo za diplomski — znaš točno što je unutra i ništa drugo je ne dira
+
+Ne trebaš ručno „ulaziti“ u venv svaki dan — `main.py` i `run.bat` to rade umjesto tebe. Za `pytest` u terminalu eksplicitno koristi `.\.venv\Scripts\python.exe`.
+
 ## Što je pandas?
 
 To je biblioteka u Pythonu za rad s tablicama i vremenskim nizovima.
