@@ -17,8 +17,8 @@ Kratki vodič kroz pojmove i naredbe u diplomskom projektu — od pokretanja pro
    - [Što je `iloc`?](#što-je-iloc)
    - [Što je `_validate_series`?](#što-je-_validate_series)
 3. [Učitavanje podataka](#3-učitavanje-podataka)
+   - [Tutorial: izvori podataka](#tutorial-izvori-podataka)
    - [Konstante u `data_loader.py`](#konstante-u-data_loaderpy)
-   - [Što znači `source="jena_quick"`?](#što-znači-sourcejena_quick)
    - [Zašto mali uzorak prije cijelog dataseta?](#zašto-mali-uzorak-prije-cijelog-dataseta)
 4. [Interpolacija](#4-interpolacija)
    - [Što je interpolacija?](#što-je-interpolacija)
@@ -233,6 +233,135 @@ Pomoćna funkcija u `data_loader.py` koja provjerava je li proslijeđeni objekt 
 
 ## 3. Učitavanje podataka
 
+### Tutorial: izvori podataka
+
+U projektu postoje **4 izvora** (`source`). Svi se koriste kroz jednu funkciju:
+
+```python
+from src.data_loader import load_experiment_series
+
+series = load_experiment_series("jena_quick")           # zadano
+series = load_experiment_series("demo", city="Split")
+series = load_experiment_series("jena_full")
+series = load_experiment_series("processed")
+```
+
+Iz terminala isti izvori idu preko `--compare --source ...`.
+
+#### Pregled — što je što?
+
+| `source` | Odakle čita | Koliko podataka | Kada koristiti |
+|----------|-------------|-----------------|----------------|
+| **`demo`** | `data/raw/temperature_demo_cities.csv` | ~12 h po gradu (Split, Zagreb) | Najbrži test — **ne treba** Jena download |
+| **`jena_quick`** | `data/raw/jena_climate_2009_2016.csv` (reže prvih 48 h u memoriji) | 288 mjerenja (10 min interval) | **Zadano** za razvoj i `--compare` |
+| **`processed`** | `data/processed/jena_temperature_48h.csv` | 48 h, već spremljeno na disk | Kad želiš fiksnu datoteku koju je program sam napravio |
+| **`jena_full`** | `data/raw/jena_climate_2009_2016.csv` (cijeli file) | 400 000+ redova | Finalni / ozbiljni eksperimenti |
+
+**Važna razlika:** `jena_quick` i `processed` daju sličan uzorak (~48 h), ali:
+- `jena_quick` — svaki put reže iz **raw** Jena dataseta u memoriji
+- `processed` — čita **već spremljenu** CSV iz `data/processed/`
+
+#### Priprema podataka (prvi put)
+
+```
+demo          → ništa, CSV je već u projektu
+jena_quick    → python main.py --download   (jednom)
+jena_full     → python main.py --download   (jednom)
+processed     → python main.py --download
+              → python main.py --quick      (stvara data/processed/jena_temperature_48h.csv)
+```
+
+#### Naredbe iz terminala
+
+**Priprema i pregled podataka** (bez usporedbe metoda):
+
+```powershell
+# Preuzmi Jena dataset u data/raw/
+python main.py --download
+
+# Spremi prvih 48 h Jene u data/processed/
+python main.py --quick
+
+# Pregled demo podataka za grad (sprema u processed/)
+python main.py --demo --city Split
+python main.py --demo --city Zagreb
+```
+
+**Usporedba interpolacijskih metoda** (`--compare`):
+
+```powershell
+# Zadano: jena_quick (najčešće za svakodnevni rad)
+python main.py --compare
+
+# Eksplicitno isto
+python main.py --compare --source jena_quick
+
+# Demo — mali CSV, bez Jene
+python main.py --compare --source demo --city Split
+python main.py --compare --source demo --city Zagreb
+
+# Iz spremljene 48h datoteke
+python main.py --compare --source processed
+
+# Cijeli Jena dataset (sporo!)
+python main.py --compare --source jena_full
+
+# Promijeni koliko vrijednosti se briše (zadano 40%)
+python main.py --compare --source jena_quick --missing-rate 0.3
+```
+
+Isto preko `run.bat`:
+
+```powershell
+.\run.bat --compare
+.\run.bat --compare --source demo --city Zagreb
+```
+
+#### U Python kodu / testovima
+
+```python
+from src.data_loader import load_experiment_series
+
+# Brzi test — zadano
+series = load_experiment_series("jena_quick")
+
+# Demo grad (bez city → Split)
+series = load_experiment_series("demo")
+series = load_experiment_series("demo", city="Zagreb")
+
+# Iz processed mape (mora postojati jena_temperature_48h.csv)
+series = load_experiment_series("processed")
+
+# Cijeli Jena (sporo, treba download)
+series = load_experiment_series("jena_full")
+```
+
+#### Koji izvor odabrati? (brzi vodič)
+
+```
+Brzo testiram kod ili pokrećem pytest?
+  → demo  ili  jena_quick
+
+Radim --compare svaki dan?
+  → jena_quick  (zadano, ne moraš pisati --source)
+
+Želim fiksnu datoteku na disku za eksperiment?
+  → python main.py --quick
+  → zatim --source processed
+
+Pišem diplomski / finalne rezultate?
+  → jena_full  (nakon što sve radi na jena_quick)
+```
+
+#### Česte greške
+
+| Greška | Uzrok | Rješenje |
+|--------|-------|----------|
+| `Jena Climate datoteka ne postoji` | Nema raw Jena CSV-a | `python main.py --download` |
+| `Obrađena CSV datoteka ne postoji` | Nema `jena_temperature_48h.csv` | `python main.py --quick` |
+| `Nema podataka za grad: X` | Krivi naziv grada u demo | Koristi `Split` ili `Zagreb` |
+| `--compare --source demo` bez grada | Program uzima **Split** kao zadani grad | Dodaj `--city Zagreb` ako treba |
+
 ### Konstante u `data_loader.py`
 
 Tri konstante kažu programu **odakle učitati podatke**:
@@ -274,20 +403,7 @@ To je rezani Jena uzorak — prvih 48 sati temperature.
 load_experiment_series("demo", city="Zagreb")
 ```
 
-### Što znači `source="jena_quick"`?
-
-Parametar `source` u `load_experiment_series()` kaže **odakle učitati podatke**:
-
-```python
-series = load_experiment_series("jena_quick")
-```
-
-| `source` | Što učitava |
-|----------|-------------|
-| `"demo"` | demo CSV po gradu |
-| `"jena_quick"` | brzi Jena uzorak (~48 h) |
-| `"jena_full"` | cijeli Jena dataset |
-| `"processed"` | već obrađena datoteka iz `data/processed/` |
+Vidi [Tutorial: izvori podataka](#tutorial-izvori-podataka) za sve naredbe i primjere.
 
 ### Zašto mali uzorak prije cijelog dataseta?
 
