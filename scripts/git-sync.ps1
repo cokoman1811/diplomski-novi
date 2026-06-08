@@ -78,8 +78,10 @@ if (-not $status) {
     Write-Info "Nema promjena za commit."
     $remote = Get-RemoteUrl
     if ($remote) {
+        Invoke-Git fetch origin
+        Invoke-Git pull --ff-only origin main
         Invoke-Git push -u origin main
-        Write-Info "Push OK (bez novih commita)."
+        Write-Info "Sync OK (bez novih commita)."
     }
     exit 0
 }
@@ -100,6 +102,8 @@ if (-not $remote) {
     exit 0
 }
 
+Invoke-Git fetch origin
+Invoke-Git pull --rebase origin main
 Invoke-Git push -u origin main
 
 Write-Info "Upload na GitHub uspješan: $remote"
