@@ -71,6 +71,31 @@ Za pokretanje projekta:
 
 Ne trebaš ručno „ulaziti“ u venv svaki dan — `main.py` i `run.bat` to rade umjesto tebe. Za `pytest` u terminalu eksplicitno koristi `.\.venv\Scripts\python.exe`.
 
+## Što je `run.bat`?
+
+`run.bat` je Windows skripta u korijenu projekta — pokreće diplomski jednim klikom ili iz terminala (`.\run.bat`).
+
+### Što radi `run.bat`?
+
+```
+run.bat
+   ↓
+provjeri postoji li .venv
+   ↓
+ako nema .venv, napravi ga
+   ↓
+instalira pakete iz requirements.txt
+   ↓
+pokrene main.py
+```
+
+### Razlika između njih
+
+| | Što je |
+|---|--------|
+| **`.venv`** | mjesto gdje su Python i paketi |
+| **`run.bat`** | skripta koja koristi taj `.venv` i pokreće projekt |
+
 ## Što je pandas?
 
 To je biblioteka u Pythonu za rad s tablicama i vremenskim nizovima.
