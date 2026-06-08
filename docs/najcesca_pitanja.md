@@ -19,6 +19,34 @@ Series se sastoji od:
 - `index` — samo tu da označi vrijeme
 - `name="temperature"` — ime temperature
 
+## Što je DataFrame?
+
+Za **tablicu** (više stupaca odjednom) pandas koristi tip:
+
+```python
+pd.DataFrame
+```
+
+Primjer — demo CSV s gradovima:
+
+```python
+data = pd.read_csv("data/raw/temperature_demo_cities.csv")
+```
+
+`data` je `DataFrame`. Izgleda kao Excel tablica:
+
+| timestamp | city | temperature |
+|-----------|------|-------------|
+| 2024-01-01 00:00:00 | Split | 9.2 |
+| 2024-01-01 01:00:00 | Split | 9.0 |
+
+Razlika u projektu:
+
+- `pd.DataFrame` — cijela tablica (svi stupci)
+- `pd.Series` — jedan stupac (npr. samo temperatura s vremenom kao indeksom)
+
+U `data_loader.py` prvo učitamo `DataFrame` iz CSV-a, a zatim iz njega izvučemo jedan `Series` za eksperimente.
+
 ## Što je `_validate_series`?
 
 ```python
