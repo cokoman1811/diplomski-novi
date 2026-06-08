@@ -2,9 +2,33 @@
 
 ## Što je pandas?
 
-To je biblioteka u pythonu za rad sa datotekama.
+To je biblioteka u Pythonu za rad s tablicama i vremenskim nizovima.
+
+Na početku datoteke obično piše:
+
+```python
+import pandas as pd
+```
+
+`pd` je samo **kratko ime** za cijelu pandas biblioteku — kao da joj daš nadimak da ne moraš svaki put pisati `pandas`.
+
+Znači: **`pd` je alatna kutija.**
+
+U toj kutiji postoje različiti alati:
+
+| Alat | Za što služi u projektu |
+|------|-------------------------|
+| `pd.DataFrame` | tablica s više stupaca |
+| `pd.Series` | jedan stupac (niz vrijednosti) |
+| `pd.read_csv` | učitavanje CSV datoteke u tablicu |
+| `pd.to_numeric` | pretvaranje teksta u broj |
+| `pd.to_datetime` | pretvaranje teksta u datum/vrijeme |
+
+Kad vidiš `pd.nešto`, znači: *"uzmi alat `nešto` iz pandas kutije"*.
 
 ## Što je Series?
+
+Jedan od alata u kutiji je `pd.Series` — koristi se za **jedan stupac** podataka.
 
 ```python
 series = pd.Series(
@@ -21,16 +45,20 @@ Series se sastoji od:
 
 ## Što je DataFrame?
 
-Za **tablicu** (više stupaca odjednom) pandas koristi tip:
+Za **tablicu** (više stupaca odjednom) iz pandas kutije uzimamo alat `pd.DataFrame`.
+
+Primjer — demo CSV s gradovima. Ovdje koristimo dva alata odjednom:
 
 ```python
-pd.DataFrame
+data = pd.read_csv("data/raw/temperature_demo_cities.csv")   # read_csv → učitaj datoteku
+# rezultat je pd.DataFrame
 ```
 
-Primjer — demo CSV s gradovima:
+Kad treba provjeriti brojeve ili datume u tablici, koriste se i ostali alati:
 
 ```python
-data = pd.read_csv("data/raw/temperature_demo_cities.csv")
+data["timestamp"] = pd.to_datetime(data["timestamp"])   # tekst → datum/vrijeme
+temperature = pd.to_numeric(data["temperature"])        # tekst → broj
 ```
 
 `data` je `DataFrame`. Izgleda kao Excel tablica:
