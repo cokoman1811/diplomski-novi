@@ -1,76 +1,57 @@
-# Progress — po danima
-
-Dnevni log napretka. Svaki dan ima svoju datoteku.
-
-| Dan | Datum | Tema | Datoteka |
-|-----|-------|------|----------|
-| 0 | 2026-06-05 | Priprema projekta, git, struktura | [dan0.md](dan0.md) |
-| 1 | 2026-06-06 | Učitavanje podataka (Jena Climate) | [dan1.md](dan1.md) |
-| 2 | 2026-06-07 | Degradacija, interpolacija, evaluacija | [dan2.md](dan2.md) |
-| 3 | 2026-06-08 | Centralni data loader, testovi, run.bat | [dan3.md](dan3.md) |
-| 4 | — | Klasične interpolacijske metode (plan) | *(u implementaciji)* |
-
-## Trenutni status
-
-**Zadnji završeni dan: Dan 3** — projekt je stabilan i spreman za nastavak.
-
-### Dan 3 — sažetak
-
-- [x] Dovršen **`src/data_loader.py`**
-- [x] Jedan centralni ulaz za eksperimentalne podatke: **`load_experiment_series()`**
-- [x] Podržani izvori: `demo`, `jena_quick`, `jena_full`, `processed`
-- [x] **`jena_quick`** — brzo testiranje bez učitavanja cijelog dataseta (npr. 48 h)
-- [x] Validacija temperaturnog niza (prazan niz, NaN, duplikati, vremenski indeks)
-- [x] Testovi u **`tests/test_data_loader.py`**
-- [x] **`run.bat`** — automatski `.venv`, instalacija paketa, pokretanje `main.py`
-- [x] Dokumentacija ažurirana
-- [x] Glavni dataset na disku: `data/raw/jena_climate_2009_2016.csv`
-
----
-
-## Plan — Dan 4: Implementacija klasičnih interpolacijskih metoda
-
-**Cilj:** proširiti klasične metode, povezati ih s `main.py` i ispisati usporedbu u terminalu. **ML metode (KNN, Random Forest) — ne raditi u Danu 4** (ostaju za Dan 5 ili kasnije).
-
-### Koraci
-
-1. **Napraviti ili urediti** `src/interpolation_methods.py`
-
-2. **Dodati / uskladiti funkcije** (sve primaju `pd.Series` s nedostajućim vrijednostima, vraćaju novi `pd.Series`):
-
-   | Funkcija | Opis |
-   |----------|------|
-   | `forward_fill_interpolation(series)` | zadnja poznata vrijednost |
-   | `linear_interpolation(series)` | linearna interpolacija |
-   | `time_interpolation(series)` | interpolacija uz obzir vremena |
-   | `cubic_interpolation(series)` | kubična interpolacija |
-   | `spline_interpolation(series)` | spline interpolacija |
-
-3. **Pravila implementacije**
-   - funkcije **ne smiju mijenjati** originalni `series` — rade na **kopiji**
-   - jednostavni **docstringovi** i komentari (početnički jasno)
-
-4. **Povezati s `src/main.py`**
-   - eksperiment se pokreće iz glavnog programa (ne samo ručni testovi)
-   - koristiti `load_experiment_series()` za učitavanje podataka
-
-5. **Evaluacija**
-   - koristiti postojeće metrike iz `src/evaluation.py` (MAE, RMSE, R²)
-   - metrike računati samo na umjetno uklonjenim vrijednostima (`missing_mask`)
-
-6. **Ispis u terminalu**
-   - tablica ili pregledna usporedba svih klasičnih metoda
-
-7. **Izvan opsega Dana 4**
-   - KNN, Random Forest, MLP → Dan 5+
-   - grafovi (opcionalno kasnije)
-
-### Očekivani tok (Dan 4)
-
-```
-load_experiment_series("jena_quick")
-  → create_missing_values()
-  → svaka interpolacijska metoda
-  → evaluate_reconstruction()
-  → ispis usporedbe u terminalu
-```
+# Progress — po danima
+
+Dnevni log napretka. Svaki dan ima svoju datoteku.
+
+| Dan | Datum | Tema | Datoteka |
+|-----|-------|------|----------|
+| 0 | 2026-06-05 | Priprema projekta, git, struktura | [dan0.md](dan0.md) |
+| 1 | 2026-06-06 | Učitavanje podataka (Jena Climate) | [dan1.md](dan1.md) |
+| 2 | 2026-06-07 | Degradacija, interpolacija, evaluacija | [dan2.md](dan2.md) |
+| 3 | 2026-06-08 | Centralni data loader, testovi, run.bat | [dan3.md](dan3.md) |
+| 4 | 2026-06-08 | Klasične interpolacijske metode | [dan4.md](dan4.md) |
+| 5 | — | ML metode (plan) | *(sljedeće)* |
+
+## Trenutni status
+
+**Zadnji završeni dan: Dan 4** — klasične interpolacijske metode integrirane u glavni tok.
+
+### Dan 4 — sažetak
+
+- [x] Proširen **`src/interpolation_methods.py`**
+- [x] Klasične metode: forward fill, linear, time, cubic, spline
+- [x] Metode rade nad `pd.Series` i **ne mijenjaju** originalni niz
+- [x] Pomoćna funkcija **`run_classical_interpolations()`**
+- [x] Testovi u **`tests/test_interpolation_methods.py`**
+- [x] **`main.py --compare`** ispisuje usporedbu metoda (MAE, RMSE, R²)
+- [x] Popravljen **`src/evaluation.py`** (sklearn importi)
+- [x] **ML metode još nisu dodane** — ostaju za Dan 5
+
+### Pokretanje
+
+```powershell
+python -m pytest
+python main.py --compare
+python main.py --compare --source jena_quick
+python main.py --compare --source demo --city Split
+```
+
+---
+
+## Plan — Dan 5: Machine learning metode
+
+**Cilj:** dodati KNN i Random Forest imputaciju te usporediti s klasičnim metodama.
+
+### Koraci (plan)
+
+1. Novi modul ili proširenje za ML metode (npr. `src/ml_methods.py`)
+2. `knn_imputation(series)` — KNN imputacija
+3. `random_forest_imputation(series)` — Random Forest pristup
+4. Integrirati u `--compare` ili novu naredbu
+5. Ista evaluacija: MAE, RMSE, R² samo na `missing_mask`
+6. Grafovi usporedbe (opcionalno)
+
+### Izvan opsega (za sada)
+
+- Neural networks / MLP
+- Veliki refactor projekta
+

@@ -222,4 +222,17 @@ U projektu prvo **umjetno uklonimo** neke vrijednosti (`create_missing_values`),
 | **cubic** | glatka krivulja (kubični polinom) kroz više točaka | glađi rezultat, može „previše valovati“ |
 | **spline** | spline krivulja — glatka, fleksibilnija od linearne | dobro za glatke temperature, treba dovoljno poznatih točaka |
 
-U Danu 2 već rade `forward_fill`, `linear` i `time`. U **Danu 4** dodajemo `cubic` i `spline` te sve povezujemo u `main.py`.
+U Danu 2 već rade `forward_fill`, `linear` i `time`. U **Danu 4** dodane su i `cubic` i `spline`, a usporedba se pokreće s:
+
+```powershell
+python main.py --compare
+```
+
+## Zašto prvo klasične metode prije ML metoda?
+
+1. **Jednostavnije za razumjeti** — forward fill i linear imaju jasnu logiku.
+2. **Brže za testirati** — ne treba trenirati model.
+3. **Dobra baza za usporedbu** — ML metode (KNN, Random Forest) uspoređujemo tek kad klasičan dio radi stabilno.
+4. **Manje ovisnosti o hiperparametrima** — klasične metode imaju manje postavki koje mogu pokvariti rezultat.
+
+ML metode dolaze u **Danu 5**.
