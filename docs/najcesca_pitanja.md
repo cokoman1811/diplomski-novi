@@ -168,3 +168,58 @@ Za drugi grad:
 ```python
 load_experiment_series("demo", city="Zagreb")
 ```
+
+## Što znači `source="jena_quick"`?
+
+`load_experiment_series()` prima parametar `source` koji kaže **odakle učitati podatke**.
+
+```python
+series = load_experiment_series("jena_quick")
+```
+
+`"jena_quick"` znači: *"učitaj samo mali Jena uzorak (npr. prvih 48 sati), ne cijeli dataset"*.
+
+| `source` | Što učitava |
+|----------|-------------|
+| `"demo"` | demo CSV po gradu |
+| `"jena_quick"` | brzi Jena uzorak (~48 h) |
+| `"jena_full"` | cijeli Jena dataset |
+| `"processed"` | već obrađena datoteka iz `data/processed/` |
+
+## Zašto koristimo mali uzorak prije cijelog dataseta?
+
+Cijeli Jena dataset ima **preko 400 000 redova**. To je:
+
+- **sporo** za učitavanje i testiranje
+- **teško za debug** kad nešto ne radi
+- **nepotrebno** dok razvijaš i provjeravaš kod
+
+Zato prvo radimo s `jena_quick` ili `demo`. Kad pipeline radi ispravno, prelazimo na `jena_full` za ozbiljnije eksperimente.
+
+## Što je interpolacija?
+
+**Interpolacija** (u ovom projektu: **imputacija**) znači **popunjavanje nedostajućih vrijednosti** u vremenskom nizu temperature.
+
+Primjer — originalni niz ima rupu:
+
+| Vrijeme | Temperatura |
+|---------|-------------|
+| 10:00 | 5.0 |
+| 10:10 | *nedostaje* |
+| 10:20 | 7.0 |
+
+Interpolacija procjenjuje što je bilo u 10:10 (npr. 6.0) na temelju susjednih poznatih vrijednosti.
+
+U projektu prvo **umjetno uklonimo** neke vrijednosti (`create_missing_values`), pa metode pokušaju vratiti original i usporedimo koliko su bile točne (MAE, RMSE, R²).
+
+## Razlika između metoda interpolacije (ukratko)
+
+| Metoda | Ideja | Kada je dobra |
+|--------|-------|---------------|
+| **forward_fill** | kopira zadnju poznatu vrijednost unaprijed | jednostavno, ali loše kad temperatura brzo pada/raste |
+| **linear** | ravna linija između dva susjeda | dobro za kratke praznine, jednostavno |
+| **time** | linearno, ali uz obzir **stvarnog vremena** između mjerenja | bolje kad su razmaci u vremenu različiti |
+| **cubic** | glatka krivulja (kubični polinom) kroz više točaka | glađi rezultat, može „previše valovati“ |
+| **spline** | spline krivulja — glatka, fleksibilnija od linearne | dobro za glatke temperature, treba dovoljno poznatih točaka |
+
+U Danu 2 već rade `forward_fill`, `linear` i `time`. U **Danu 4** dodajemo `cubic` i `spline` te sve povezujemo u `main.py`.

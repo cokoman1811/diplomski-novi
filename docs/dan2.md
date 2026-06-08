@@ -72,10 +72,8 @@ Budući da su podaci pravilno vremenski uzorkovani, linearna i vremenska interpo
 učitaj Jena 48h → create_missing_values() → interpolacija → evaluate_reconstruction()
 ```
 
-## Sljedeći dan (Dan 3)
+## Sljedeći dan (Dan 3) — obavljeno
 
-- [ ] Dodati spline / moving average metode
-- [ ] ML metode (KNN, Random Forest, MLP)
-- [ ] Integrirati eksperiment u `src/main.py` (ne samo ručni testovi)
-- [ ] Grafička usporedba original vs. rekonstruirano
-- [ ] Početi puniti `rad.md` — metodologija i prvi rezultati
+Dan 3 je pokrio centralni `load_experiment_series()`, testove i `run.bat`. Vidi [dan3.md](dan3.md).
+
+Plan za Dan 4: cubic/spline metode, integracija u `main.py`, usporedba u terminalu.
