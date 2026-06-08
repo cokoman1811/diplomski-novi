@@ -75,6 +75,36 @@ Razlika u projektu:
 
 U `data_loader.py` prvo učitamo `DataFrame` iz CSV-a, a zatim iz njega izvučemo jedan `Series` za eksperimente.
 
+## Što je `iloc`?
+
+`iloc` uzima podatke iz tablice ili niza **po redu** — broj reda, ne po datumu ili imenu.
+
+Redovi se broje od 0:
+
+| Red (`iloc`) | Vrijeme | Temperatura |
+|--------------|---------|-------------|
+| 0 | 2009-01-01 00:10 | -8.02 |
+| 1 | 2009-01-01 00:20 | -8.41 |
+| 2 | 2009-01-01 00:30 | -8.51 |
+
+Primjeri:
+
+```python
+series.iloc[0]      # prvi red
+series.iloc[5]      # šesti red
+series.iloc[:288]   # prvih 288 redova (od 0 do 287)
+```
+
+U `data_loader.py` quick mode uzima prvih 48 sati ovako:
+
+```python
+series.iloc[:samples]
+```
+
+Znači: *"daj mi samo prvih `samples` redova od početka niza"*.
+
+`iloc` radi i na `DataFrame` i na `Series` — uvijek gleda **poziciju reda**, ne vrijednost indeksa.
+
 ## Što je `_validate_series`?
 
 ```python
