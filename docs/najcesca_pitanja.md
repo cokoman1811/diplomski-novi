@@ -64,6 +64,11 @@ ili:
 - **Sistemski Python** = zajednička kuhinja u zgradi — svi je koriste, nered često
 - **`.venv`** = tvoja privatna kuhinja samo za diplomski — znaš točno što je unutra i ništa drugo je ne dira
 
+Za pokretanje projekta:
+
+- **`.venv`** = garaža s alatom i motorom — tu su Python i svi paketi projekta
+- **`run.bat`** = ključ koji upali auto — jedan klik i program krene s motorom iz garaže
+
 Ne trebaš ručno „ulaziti“ u venv svaki dan — `main.py` i `run.bat` to rade umjesto tebe. Za `pytest` u terminalu eksplicitno koristi `.\.venv\Scripts\python.exe`.
 
 ## Što je pandas?
