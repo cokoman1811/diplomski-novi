@@ -23,6 +23,7 @@ Kratki vodič kroz pojmove i naredbe u diplomskom projektu — od pokretanja pro
 4. [Interpolacija](#4-interpolacija)
    - [Što je interpolacija?](#što-je-interpolacija)
    - [Razlika između metoda](#razlika-između-metoda)
+   - [Što je scipy?](#što-je-scipy)
    - [Zašto prvo klasične metode?](#zašto-prvo-klasične-metode)
 
 ---
@@ -442,6 +443,14 @@ U projektu prvo **umjetno uklonimo** neke vrijednosti (`create_missing_values`),
 | **time** | linearno, ali uz obzir **stvarnog vremena** između mjerenja | bolje kad su razmaci u vremenu različiti |
 | **cubic** | glatka krivulja (kubični polinom) kroz više točaka | glađi rezultat, može „previše valovati“ |
 | **spline** | spline krivulja — glatka, fleksibilnija od linearne | dobro za glatke temperature, treba dovoljno poznatih točaka |
+
+### Što je scipy?
+
+**scipy** je Python biblioteka za napredniju matematiku (naučne i inženjerske proračune).
+
+Ime dolazi od: **Scientific Python**.
+
+U projektu je scipy potreban za **`cubic_interpolation`** i **`spline_interpolation`** — pandas ih koristi u pozadini kad pozoveš `interpolate(method="cubic")` ili `interpolate(method="spline")`. Ako scipy nije instaliran, te dvije metode neće raditi.
 
 U Danu 2 već rade `forward_fill`, `linear` i `time`. U **Danu 4** dodane su i `cubic` i `spline`. Usporedba:
 
