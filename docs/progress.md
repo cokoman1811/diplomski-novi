@@ -9,11 +9,11 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 | 2 | 2026-06-07 | Degradacija, interpolacija, evaluacija | [dan2.md](dan2.md) |
 | 3 | 2026-06-08 | Centralni data loader, testovi, run.bat | [dan3.md](dan3.md) |
 | 4 | 2026-06-08 | Klasične interpolacijske metode | [dan4.md](dan4.md) |
-| 5 | — | ML metode (plan) | *(sljedeće)* |
+| 5 | 2026-06-09 | KNN imputacija (`src/ml_methods.py`) | [dan5.md](dan5.md) |
 
 ## Trenutni status
 
-**Zadnji završeni dan: Dan 4** — klasične interpolacijske metode integrirane u glavni tok. **Testirano 2026-06-09.**
+**Zadnji završeni dan: Dan 5** — KNN imputacija u `src/ml_methods.py`, testovi u `tests/test_ml_methods.py`. Random Forest i `--compare` integracija — sljedeće.
 
 ### Dan 4 — sažetak
 
