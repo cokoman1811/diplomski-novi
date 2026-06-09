@@ -1,93 +1,92 @@
 # Diplomski rad — Toni Jakelić
 
-**Radni naslov:** Usporedba klasičnih i neuronskih metoda za imputaciju nedostajućih podataka u vremenskim nizovima
+**Radni naslov:** Usporedba klasičnih i strojno-učenih metoda za imputaciju nedostajućih podataka u vremenskim nizovima
 
 **Autor:** Toni Jakelić  
-**Godina:** 2026.  
-**Radna mapa:** `Desktop\novi diplomski`
-
-Svježi početak pisanja i eksperimentiranja. Stari projekt (`diplomski rad`) ostaje netaknut — ovdje gradimo novu verziju rada korak po korak.
+**Godina:** 2026.
 
 ## O projektu
 
-Cilj rada je usporediti klasične metode interpolacije i metode strojnog učenja u zadatku popunjavanja nedostajućih vrijednosti u vremenskim podacima.
+Cilj rada je usporediti klasične metode interpolacije i metode strojnog učenja u zadatku popunjavanja nedostajućih vrijednosti u temperaturnim vremenskim nizovima. Cijeli eksperimentalni sustav implementiran je u **programskom jeziku C** (standard C99), bez vanjskih biblioteka — sve metode (interpolacija, KNN, metrike) pisane su ručno.
 
-Planirane metode:
-- Linearna interpolacija
-- Spline interpolacija
-- KNN imputacija
-- Random Forest regresija
-- LSTM neuronska mreža
+Tok eksperimenta:
 
-Metrike evaluacije: MAE, RMSE, MAPE i grafička usporedba.
+1. učitaj originalni temperaturni niz iz CSV-a
+2. umjetno ukloni dio vrijednosti (pamti se `missing_mask`)
+3. rekonstruiraj uklonjene vrijednosti različitim metodama
+4. usporedi rekonstrukciju s originalom **samo na uklonjenim mjestima**
+5. izračunaj MAE, RMSE i R²
+
+### Implementirane metode
+
+| Metoda | Opis |
+|--------|------|
+| `forward_fill` | popuna zadnjom poznatom vrijednošću |
+| `linear_interpolation` | linearna interpolacija po poziciji |
+| `time_interpolation` | linearna interpolacija po stvarnom vremenu |
+| `cubic_interpolation` | prirodni kubični spline |
+| `spline_interpolation` | spline reda 3 (ista jezgra) |
+| `knn_imputation` | K-najbližih susjeda (značajke: pozicija, sat, dan u godini) |
 
 ## Struktura
 
 ```
-novi diplomski/
-├── src/              # Izvorni kod (metode, eksperimenti)
-├── data/             # Dataseti i ulazni podaci
-├── docs/             # Projektna dokumentacija
-├── main.py           # Ulazna točka za eksperimente
-├── app.py            # Web UI za vizualizaciju (kasnije)
-├── requirements.txt  # Python ovisnosti
-├── rad.md            # Tekst diplomskog rada
-├── KORACI.md         # Log napretka
-└── scripts/          # Git sync skripte
+diplomski-kopija/
+├── src/                    # C izvorni kod
+│   ├── series.h / dataset.c    # struktura niza + učitavanje CSV-a, parsiranje datuma
+│   ├── preprocessing.*         # umjetno uklanjanje vrijednosti (RNG)
+│   ├── interpolation.*         # klasične metode
+│   ├── ml_methods.*            # KNN imputacija
+│   ├── evaluation.*            # MAE, RMSE, R²
+│   └── main.c                  # CLI (--compare, --source, --city, --missing-rate)
+├── data/                   # ulazni podaci (CSV)
+├── docs/                   # projektna dokumentacija
+├── Makefile                # build (Linux/macOS/MinGW)
+├── build.bat               # build na Windowsu (gcc)
+├── run.bat                 # build + pokretanje na Windowsu
+├── rad.md                  # tekst diplomskog rada
+└── KORACI.md               # log napretka
 ```
 
-## Status
+## Build i pokretanje
 
-- [x] Korak 0 — mapa projekta kreirana
-- [x] Korak 1 — skeleton rada u `rad.md`
-- [x] Korak 2 — Git repozitorij + auto-upload (`@git-sync`)
-- [x] Korak 3 — struktura projekta (`src/`, `data/`, `docs/`, `main.py`, `app.py`)
-- [x] Korak 4 — učitavanje Jena podataka + CLI ([dan1.md](docs/dan1.md))
-- [x] Korak 5 — degradacija, interpolacija, evaluacija ([dan2.md](docs/dan2.md))
-- [ ] Dan 3 — spline, ML metode, grafovi
-
-Dnevni log: [docs/progress.md](docs/progress.md) · Koraci: [KORACI.md](KORACI.md)
-
-## Pokretanje
-
-Prvi put (ili nakon klona repozitorija) samo pokreni:
+### Windows (gcc / MinGW-w64)
 
 ```powershell
-python main.py --download    # preuzmi Jena Climate (jednom)
-python main.py --quick       # učitaj prvih 48 h Jena temperature
-python main.py --demo        # mali demo s gradovima Split/Zagreb
+.\build.bat                       # kompajliraj -> diplomski.exe
+.\run.bat --compare               # build (ako treba) + usporedba
+.\diplomski.exe --compare --source demo --city Split
+.\diplomski.exe --compare --missing-rate 0.3
 ```
 
-`main.py` automatski kreira `.venv`, instalira pakete iz `requirements.txt` i pokreće projekt.
+> Treba `gcc` u PATH-u. Instalacija: `winget install -e --id BrechtSanders.WinLibs.POSIX.UCRT`
 
-**Dataset:** [Jena Climate](https://www.bgc-jena.mpg.de/wetter/) (2009–2016, mjerenja svakih 10 min) — sprema se u `data/raw/jena_climate_2009_2016.csv`.
+### Linux / macOS
 
-## Kako radimo
+```bash
+make            # kompajliraj
+make run        # build + ./diplomski --compare
+./diplomski --compare --source jena_quick
+```
 
-1. Ti kažeš što želiš u sljedećem koraku.
-2. Agent to napravi (tekst, kod, struktura — što zatreba).
-3. Napredak se zapisuje u `KORACI.md`.
-4. Sljedeći korak.
+### Argumenti
+
+| Argument | Zadano | Opis |
+|----------|--------|------|
+| `--compare` | — | pokreni usporedbu metoda |
+| `--source` | `jena_quick` | izvor: `jena_quick` \| `processed` \| `demo` |
+| `--city` | `Split` | grad (samo za `demo`) |
+| `--missing-rate` | `0.4` | udio umjetno uklonjenih vrijednosti |
+
+## Podaci
+
+- `data/processed/jena_temperature_48h.csv` — prvih 48 h Jena Climate temperature (288 mjerenja svakih 10 min)
+- `data/raw/temperature_demo_cities.csv` — mali demo s gradovima Split/Zagreb
 
 ## Git i backup
 
-Repozitorij je inicijaliziran na grani `main`. Za upload na GitHub:
-
 ```powershell
-# Jednom — GitHub CLI (preporučeno)
-winget install GitHub.cli
-gh auth login
-.\scripts\git-sync.ps1 -SetupRemote
+.\scripts\git-sync.ps1            # commit + push
 ```
 
-Ili ručno na [github.com/new](https://github.com/new) (ime: `novi-diplomski`), pa:
-
-```powershell
-.\scripts\git-sync.ps1 -RemoteUrl "https://github.com/TVOJ_USERNAME/novi-diplomski.git"
-```
-
-U chatu možeš i: `@git-sync uploadaj sve na git`
-
-## Bilješke
-
-Mentor i studij upisuju se u `rad.md` kad budu dogovoreni. Tema i detalji eksperimenta razvijaju se kako rad napreduje.
+U chatu: `@git-sync uploadaj sve na git`

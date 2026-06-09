@@ -1,1 +1,0 @@
-"""Izvorni kod diplomskog projekta."""

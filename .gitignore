@@ -14,12 +14,12 @@ desktop.ini
 *.swp
 *~
 
-# Python
-.venv/
-__pycache__/
-*.py[cod]
-.pytest_cache/
-*.egg-info/
+# C build artefakti
+build/
+*.o
+*.obj
+*.exe
+diplomski
 
 # Data (zadrži strukturu, ne velike datoteke)
 data/*
