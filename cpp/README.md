@@ -16,6 +16,8 @@ implementirano u standardnom C++-u (nema pandas / numpy / sklearn / scipy).
 | `evaluation.py` | `evaluation.{hpp,cpp}` | MAE, RMSE, R² |
 | `pd.Series` | `TimeSeries` | vremenski niz (timestamp + vrijednost, NaN = nedostaje) |
 | `main.py` | `src/main.cpp` | CLI `--compare` |
+| `app.py` | `src/app.cpp` | stub web aplikacije (nije implementiran) |
+| `tests/*.py` | `tests/run_tests.cpp` | testovi (vlastiti mini-harness, bez pytest-a) |
 
 ## Razlike u odnosu na Python
 
@@ -60,3 +62,22 @@ g++ -std=c++17 -O2 -Iinclude src/*.cpp -o thesis.exe
 .\thesis.exe --compare --neighbors 7
 .\thesis.exe --compare --source demo --csv ..\data\raw\temperature_demo_cities.csv --city Split
 ```
+
+## Testovi
+
+```powershell
+.\tests.exe
+```
+
+Ispisuje provjere za KNN, preprocessing, interpolacije i metrike te na kraju
+sažetak prolaza/padova (ekvivalent `pytest` testovima iz Python verzije).
+
+## Kompajler (jednom)
+
+C++ se ne može pokrenuti samo iz editora — treba kompajler. Bilo koji od:
+
+- **MinGW-w64 (g++)**: `winget install -e --id BrechtSanders.WinLibs.POSIX.UCRT`
+- **LLVM (clang)**: `winget install -e --id LLVM.LLVM`
+- **MSVC**: Visual Studio Build Tools (C++ workload)
+
+Nakon instalacije otvori novi terminal pa pokreni `.\build.bat`.

@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(thesis
-    src/main.cpp
+# Zajednicki moduli (sve osim ulaznih tocaka main/app/test).
+set(THESIS_CORE
     src/time_series.cpp
     src/data_loader.cpp
     src/preprocessing.cpp
@@ -15,10 +15,18 @@ add_executable(thesis
     src/evaluation.cpp
 )
 
-target_include_directories(thesis PRIVATE include)
+add_executable(thesis src/main.cpp ${THESIS_CORE})
+add_executable(app src/app.cpp)
+add_executable(tests tests/run_tests.cpp ${THESIS_CORE})
 
-if(MSVC)
-    target_compile_options(thesis PRIVATE /W4)
-else()
-    target_compile_options(thesis PRIVATE -Wall -Wextra -O2)
-endif()
+foreach(target thesis app tests)
+    target_include_directories(${target} PRIVATE include)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -O2)
+    endif()
+endforeach()
+
+enable_testing()
+add_test(NAME unit_tests COMMAND tests)
