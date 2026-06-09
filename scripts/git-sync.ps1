@@ -19,11 +19,15 @@ function Invoke-Git {
 
     $previousPreference = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
-    & git @GitArgs 2>&1 | Out-Null
+    $output = & git @GitArgs 2>&1
     $exitCode = $LASTEXITCODE
     $ErrorActionPreference = $previousPreference
 
     if ($exitCode -ne 0) {
+        $detail = ($output | Out-String).Trim()
+        if ($detail) {
+            throw "git $($GitArgs -join ' ') nije uspio (exit $exitCode): $detail"
+        }
         throw "git $($GitArgs -join ' ') nije uspio (exit $exitCode)."
     }
 }
@@ -79,7 +83,7 @@ if (-not $status) {
     $remote = Get-RemoteUrl
     if ($remote) {
         Invoke-Git fetch origin
-        Invoke-Git pull --ff-only origin main
+        Invoke-Git pull --rebase origin main
         Invoke-Git push -u origin main
         Write-Info "Sync OK (bez novih commita)."
     }
@@ -90,6 +94,12 @@ if (-not $CommitMessage) {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
     $CommitMessage = "Auto-sync: $timestamp"
 }
+
+# GitHub commit email — ne Windows hostname (ericssonnikolatesla.com).
+$env:GIT_AUTHOR_NAME = "Toni Jakelić"
+$env:GIT_AUTHOR_EMAIL = "jakelictoni@gmail.com"
+$env:GIT_COMMITTER_NAME = "Toni Jakelić"
+$env:GIT_COMMITTER_EMAIL = "jakelictoni@gmail.com"
 
 git commit -m $CommitMessage
 if ($LASTEXITCODE -ne 0) { throw "Commit nije uspio." }
