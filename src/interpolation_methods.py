@@ -110,7 +110,7 @@ def spline_interpolation(series: pd.Series) -> pd.Series:
         raise ValueError(
             "spline interpolation failed. Check that scipy is installed and "
             "that the series has enough known values."
-        ) from error
+        ) from errorst
 
     return _fill_remaining_gaps(result)
 
